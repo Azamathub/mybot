@@ -1,19 +1,21 @@
 import logging
 import asyncio
 import os
+import google.generativeai as genai
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji
-import anthropic
 
 API_TOKEN = os.getenv('BOT_TOKEN')
 ADMIN_USERNAME = 'aldilshod'
-ANTHROPIC_KEY = os.getenv('ANTHROPIC_KEY')
+GEMINI_KEY = os.getenv('GEMINI_KEY')
+
+genai.configure(api_key=GEMINI_KEY)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
-ai_client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 
 def get_main_keyboard():
     keyboard = ReplyKeyboardMarkup(
@@ -67,20 +69,12 @@ async def process_admin(message: types.Message):
 async def handle_ai_response(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👀")])
     user_question = message.text
-
     try:
-        response = ai_client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=500,
-            system="Siz Bekobod shahridagi telefon va kompyuter servisi botisiz. "
-                   "Mijozlarga o'zbek tilida qisqa va foydali javob bering. "
-                   "Texnik savollar, ta'mirlash, narxlar haqida yordam bering.",
-            messages=[{"role": "user", "content": user_question}]
-        )
-        ai_reply = response.content[0].text
+        prompt = f"Siz Bekobod shahridagi telefon va kompyuter servisi botisiz. Mijozlarga o'zbek tilida qisqa va foydali javob bering. Savol: {user_question}"
+        response = model.generate_content(prompt)
+        ai_reply = response.text
     except Exception as e:
         ai_reply = "Hozirda AI javob bera olmayapti. Iltimos adminga murojaat qiling."
-
     await message.reply(ai_reply)
 
 async def main():
