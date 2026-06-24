@@ -1,2 +1,3 @@
 aiogram==3.4.1
 google-generativeai
+pydantic-core==2.14.1
