@@ -3,7 +3,7 @@ import asyncio
 import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji, FSInputFile
 
 # Railway'dagi Variables bo'limidan tokenni avtomatik o'qib oladi
 API_TOKEN = os.getenv("BOT_TOKEN")
@@ -51,13 +51,23 @@ async def process_time(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="⚡")])
     await message.reply("Ish vaqtimiz: 09:00 dan 18:00 gacha. Juma kuni dam, boshqa kunlari xizmatingizdamiz!")
 
-# 📍 Manzilimiz (Lokatsiya)
+# 📍 Manzilimiz (Rasm + Lokatsiya) - Railway uchun xavfsiz qilingan variant
 @dp.message(F.text == "📍 Manzilimiz")
 async def process_location(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🔥")])
     
-    # Serverda rasm xatosi bermasligi uchun faqat matn va xarita yuboriladi
-    await message.reply("📍 Bizning servis Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon.")
+    caption_text = "📍 Bizning servis Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
+    
+    try:
+        # Server papkasidagi manzil.jpg faylini tekshiramiz
+        if os.path.exists("manzil.jpg"):
+            photo = FSInputFile("manzil.jpg")
+            await message.reply_photo(photo=photo, caption=caption_text)
+        else:
+            await message.reply(f"{caption_text}\n\n(Tizimda rasm fayli topilmadi)")
+    except Exception as e:
+        # Agar kutilmagan xato bo'lsa, server o'chib qolmaydi, faqat matn yuboradi
+        await message.reply(caption_text)
     
     # Bekobod koordinatalari
     latitude = 40.2140770   
@@ -80,7 +90,6 @@ async def process_ai_info(message: types.Message):
 @dp.message(F.text == "Adminga yozish")
 async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
-    # Bu yerga to'g'ridan-to'g'ri Dilshod akaning aniq profili ulandi
     await message.reply("👨‍💻 Savollar yoki takliflar bo'lsa, adminga yozishingiz mumkin:\n👉 https://t.me/admin_aldilshod")
 
 # Ixtiyoriy matn yozilsa (AI javob beradi)
