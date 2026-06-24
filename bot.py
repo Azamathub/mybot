@@ -4,15 +4,11 @@ import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji, FSInputFile
-import google.generativeai as genai
+import aiohttp
 
 # Railway Variables bo'limidan token va kalitlarni o'qiymiz
 API_TOKEN = os.getenv("BOT_TOKEN")
 GEMINI_KEY = os.getenv("GEMINI_KEY")
-
-# Gemini AI ni sozlash
-genai.configure(api_key=GEMINI_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash") # Tezkor va aqlli model
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
@@ -94,23 +90,37 @@ async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
     await message.reply("👨‍💻 Savollar yoki takliflar bo'lsa, adminga yozishingiz mumkin:\n👉 https://t.me/admin_aldilshod")
 
-# HAQIQIY GEMINI AI: Agar ixtiyoriy boshqa matn yozilsa, Gemini javob beradi
+# API orqali Gemini AI so'rovi
 @dp.message()
 async def handle_ai_response(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👀")])
     user_question = message.text
     
+    # Sun'iy intellektga yo'riqnoma beramiz
+    prompt = f"Siz 'Bizning servis' nomli texnik xizmat ko'rsatish markazining aqlli yordamchisiz. Quyidagi savolga o'zbek tilida qisqa, aniq va xushmuomala javob bering:\n\nSavol: {user_question}"
+    
+    # Google Gemini API havolasi
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
+    headers = {'Content-Type': 'application/json'}
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
+    }
+    
     try:
-        # Sun'iy intellektga kontekst beramiz, u o'zini servis yordamchisi deb bilsin
-        prompt = f"Siz 'Bizning servis' nomli texnik xizmat ko'rsatish markazining aqlli yordamchisiz. Quyidagi savolga o'zbek tilida qisqa, aniq va xushmuomala javob bering:\n\nSavol: {user_question}"
-        
-        # Gemini modelidan javob olish
-        response = model.generate_content(prompt)
-        await message.reply(response.text)
-        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=payload) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    # Kelgan javob ichidan matnni ajratib olish
+                    reply_text = result['candidates'][0]['content']['parts'][0]['text']
+                    await message.reply(reply_text)
+                else:
+                    await message.reply("🤖 AI javob berishda biroz o'ylanib qoldi. Iltimos, savolni qaytadan yozib ko'ring.")
     except Exception as e:
-        logging.error(f"Gemini xatolik: {e}")
-        await message.reply("🤖 AI tizimida vaqtincha uzilish bo'ldi. Sal keyinroq qayta urunib ko'ring.")
+        logging.error(f"Gemini API xatosi: {e}")
+        await message.reply("🤖 Tizimda vaqtincha uzilish bo'ldi. Sal keyinroq qayta urunib ko'ring.")
 
 async def main():
     await dp.start_polling(bot)
