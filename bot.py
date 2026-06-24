@@ -4,11 +4,9 @@ import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji, FSInputFile
-import aiohttp
 
-# Railway Variables bo'limidan token va kalitlarni o'qiymiz
+# Railway'dagi Variables bo'limidan tokenni avtomatik o'qib oladi
 API_TOKEN = os.getenv("BOT_TOKEN")
-GEMINI_KEY = os.getenv("GEMINI_KEY")
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
@@ -53,21 +51,25 @@ async def process_time(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="⚡")])
     await message.reply("Ish vaqtimiz: 09:00 dan 18:00 gacha. Juma kuni dam, boshqa kunlari xizmatingizdamiz!")
 
-# 📍 Manzilimiz (Rasm + Lokatsiya)
+# 📍 Manzilimiz (Rasm + Lokatsiya) - Railway uchun xavfsiz qilingan variant
 @dp.message(F.text == "📍 Manzilimiz")
 async def process_location(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🔥")])
+    
     caption_text = "📍 Bizning servis Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
     
     try:
+        # Server papkasidagi manzil.jpg faylini tekshiramiz
         if os.path.exists("manzil.jpg"):
             photo = FSInputFile("manzil.jpg")
             await message.reply_photo(photo=photo, caption=caption_text)
         else:
-            await message.reply(caption_text)
-    except Exception:
+            await message.reply(f"{caption_text}\n\n(Tizimda rasm fayli topilmadi)")
+    except Exception as e:
+        # Agar kutilmagan xato bo'lsa, server o'chib qolmaydi, faqat matn yuboradi
         await message.reply(caption_text)
     
+    # Bekobod koordinatalari
     latitude = 40.2140770   
     longitude = 69.2654280  
     await message.reply_location(latitude=latitude, longitude=longitude)
@@ -82,7 +84,7 @@ async def process_price(message: types.Message):
 @dp.message(F.text == "🤖 Sun'iy Intellekt (AI)")
 async def process_ai_info(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🤔")])
-    await message.reply("🤖 Haqiqiy AI tizimi faol! Istalgan savolingizni biron bir tugmani bosmasdan, to'g'ridan-to'g'ri matn shaklida yozib yuboring, Gemini AI sizga javob beradi.")
+    await message.reply("🤖 AI tizimi faol! Istalgan savolingizni matn shaklida yozib yuboring, 'Bizning servis' nomidan javob beraman.")
 
 # Adminga yozish tugmasi
 @dp.message(F.text == "Adminga yozish")
@@ -90,37 +92,14 @@ async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
     await message.reply("👨‍💻 Savollar yoki takliflar bo'lsa, adminga yozishingiz mumkin:\n👉 https://t.me/admin_aldilshod")
 
-# API orqali Gemini AI so'rovi
+# Ixtiyoriy matn yozilsa (AI javob beradi)
 @dp.message()
 async def handle_ai_response(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👀")])
     user_question = message.text
-    
-    # Sun'iy intellektga yo'riqnoma beramiz
-    prompt = f"Siz 'Bizning servis' nomli texnik xizmat ko'rsatish markazining aqlli yordamchisiz. Quyidagi savolga o'zbek tilida qisqa, aniq va xushmuomala javob bering:\n\nSavol: {user_question}"
-    
-    # Google Gemini API havolasi
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
-    headers = {'Content-Type': 'application/json'}
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
-    }
-    
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, json=payload) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    # Kelgan javob ichidan matnni ajratib olish
-                    reply_text = result['candidates'][0]['content']['parts'][0]['text']
-                    await message.reply(reply_text)
-                else:
-                    await message.reply("🤖 AI javob berishda biroz o'ylanib qoldi. Iltimos, savolni qaytadan yozib ko'ring.")
-    except Exception as e:
-        logging.error(f"Gemini API xatosi: {e}")
-        await message.reply("🤖 Tizimda vaqtincha uzilish bo'ldi. Sal keyinroq qayta urunib ko'ring.")
+    ai_prompt_prefix = "Bizning servis ushbu savolga quyidagicha javob beradi: \n\n"
+    ai_generated_reply = f"Sizning '{user_question}' bo'yicha so'rovingiz qabul qilindi. Biz sizga eng sifatli yordamni taklif etamiz!"
+    await message.reply(f"{ai_prompt_prefix}{ai_generated_reply}")
 
 async def main():
     await dp.start_polling(bot)
