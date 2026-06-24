@@ -17,6 +17,8 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
+MANZIL_PHOTO_ID = "AgACAгIAAxkBAAIBKmo7xVOnCilgZSnOMJFJDwMn7U9JAAKjGWsbirjYSZhZUiZAcqfGAQADAgADeQADPAQ"
+
 def get_main_keyboard():
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
@@ -49,7 +51,7 @@ async def process_location(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🔥")])
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo="BU_YERGA_FILE_ID",
+        photo=MANZIL_PHOTO_ID,
         caption="📍 Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
     )
     await message.reply_location(latitude=40.2140770, longitude=69.2654280)
