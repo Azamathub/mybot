@@ -17,8 +17,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# ⬇️ SHU YERGA O'Z RASM FILE_ID INGIZNI QO'YING
-MANZIL_PHOTO_ID = "BU_YERGA_FILE_ID_YOZING"
+MANZIL_PHOTO_ID = "AgACAгIAAxkBAAIBKmo7xVOnCilgZSnOMJFJDwMn7U9JAAKjGWsbirjYSZhZUiZAcqfGAQADAgADeQADPAQ"
 
 def get_main_keyboard():
     keyboard = ReplyKeyboardMarkup(
@@ -45,81 +44,51 @@ async def send_welcome(message: types.Message):
 @dp.message(F.text == "🕒 Ish vaqtimiz")
 async def process_time(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="⚡")])
-    await message.reply(
-        "🕒 Ish vaqtimiz:\n"
-        "Dushanba - Payshanba: 09:00 - 18:00\n"
-        "Shanba - Yakshanba: 09:00 - 18:00\n"
-        "❌ Juma kuni dam olamiz!"
-    )
+    await message.reply("Ish vaqtimiz: 09:00 dan 18:00 gacha. Juma kuni dam, boshqa kunlari xizmatingizdamiz!")
 
 @dp.message(F.text == "📍 Manzilimiz")
 async def process_location(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🔥")])
-    try:
-        await bot.send_photo(
-            chat_id=message.chat.id,
-            photo=Rasm file_id: `AgACAgIAAxkBAAIBKmo7xVOnCilgZSnOMJFJDwMn7U9JAAKjGWsbirjYSZhZUiZAcqfGAQADAgADeQADPAQ`,
-            caption="📍 Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
-        )
-    except Exception as e:
-        logging.error(f"Rasm yuborishda xato: {e}")
-        await message.reply("📍 Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon.")
-    try:
-        await message.reply_location(latitude=40.2140770, longitude=69.2654280)
-    except Exception as e:
-        logging.error(f"Lokatsiya yuborishda xato: {e}")
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=MANZIL_PHOTO_ID,
+        caption="📍 Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
+    )
+    await message.reply_location(latitude=40.2140770, longitude=69.2654280)
 
 @dp.message(F.text == "💰 Xizmat narxlari")
 async def process_price(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="✍")])
-    await message.reply(
-        "💰 Xizmat narxlarimiz:\n\n"
-        "🔧 Diagnostika: 50,000 so'm\n"
-        "📱 Telefon ta'miri: narx qurilmaga qarab\n"
-        "💻 Kompyuter ta'miri: narx muammoga qarab\n\n"
-        "Batafsil ma'lumot uchun adminga murojaat qiling!"
-    )
+    await message.reply("Xizmat ko'rsatish narxlari qurilma va muammo murakkabligiga qarab farq qiladi. Diagnostika 50ming so'm!")
 
 @dp.message(F.text == "🤖 Sun'iy Intellekt (AI)")
 async def process_ai_info(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🤔")])
-    await message.reply(
-        "🤖 AI yordamchisi faol!\n\n"
-        "Istalgan savolingizni matn shaklida yozib yuboring,\n"
-        "men sizga javob berishga harakat qilaman! 💬"
-    )
+    await message.reply("🤖 AI tizimi faol! Istalgan savolingizni matn shaklida yozib yuboring!")
 
 @dp.message(F.text == "Adminga yozish")
 async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
-    await message.reply(f"👨‍💻 Admin bilan bog'lanish:\n👉 https://t.me/{ADMIN_USERNAME}")
+    await message.reply(f"👨‍💻 Adminga yozish:\n👉 https://t.me/{ADMIN_USERNAME}")
 
 @dp.message(F.photo)
 async def get_photo_id(message: types.Message):
     file_id = message.photo[-1].file_id
-    await message.reply(f"Rasm file_id:\n`{file_id}`")
+    await message.reply(f"Rasm file_id: `{file_id}`")
 
 @dp.message()
 async def handle_ai_response(message: types.Message):
-    if not message.text:
-        return
     await message.react(reaction=[ReactionTypeEmoji(emoji="👀")])
     user_question = message.text
     try:
-        prompt = (
-            f"Siz Bekobod shahridagi telefon va kompyuter servisi botisiz. "
-            f"Mijozlarga o'zbek tilida qisqa va foydali javob bering. "
-            f"Savol: {user_question}"
-        )
+        prompt = f"Siz Bekobod shahridagi telefon va kompyuter servisi botisiz. Mijozlarga o'zbek tilida qisqa va foydali javob bering. Savol: {user_question}"
         response = model.generate_content(prompt)
         ai_reply = response.text
     except Exception as e:
-        logging.error(f"AI xatosi: {e}")
         ai_reply = "Hozirda AI javob bera olmayapti. Iltimos adminga murojaat qiling."
     await message.reply(ai_reply)
 
 async def main():
-    logging.info("Bot ishga tushdi!")
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
