@@ -4,9 +4,15 @@ import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji, FSInputFile
+import google.generativeai as genai
 
-# Railway'dagi Variables bo'limidan tokenni avtomatik o'qib oladi
+# Railway Variables bo'limidan token va kalitlarni o'qiymiz
 API_TOKEN = os.getenv("BOT_TOKEN")
+GEMINI_KEY = os.getenv("GEMINI_KEY")
+
+# Gemini AI ni sozlash
+genai.configure(api_key=GEMINI_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash") # Tezkor va aqlli model
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
@@ -51,25 +57,21 @@ async def process_time(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="⚡")])
     await message.reply("Ish vaqtimiz: 09:00 dan 18:00 gacha. Juma kuni dam, boshqa kunlari xizmatingizdamiz!")
 
-# 📍 Manzilimiz (Rasm + Lokatsiya) - Railway uchun xavfsiz qilingan variant
+# 📍 Manzilimiz (Rasm + Lokatsiya)
 @dp.message(F.text == "📍 Manzilimiz")
 async def process_location(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🔥")])
-    
     caption_text = "📍 Bizning servis Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
     
     try:
-        # Server papkasidagi manzil.jpg faylini tekshiramiz
         if os.path.exists("manzil.jpg"):
             photo = FSInputFile("manzil.jpg")
             await message.reply_photo(photo=photo, caption=caption_text)
         else:
-            await message.reply(f"{caption_text}\n\n(Tizimda rasm fayli topilmadi)")
-    except Exception as e:
-        # Agar kutilmagan xato bo'lsa, server o'chib qolmaydi, faqat matn yuboradi
+            await message.reply(caption_text)
+    except Exception:
         await message.reply(caption_text)
     
-    # Bekobod koordinatalari
     latitude = 40.2140770   
     longitude = 69.2654280  
     await message.reply_location(latitude=latitude, longitude=longitude)
@@ -84,7 +86,7 @@ async def process_price(message: types.Message):
 @dp.message(F.text == "🤖 Sun'iy Intellekt (AI)")
 async def process_ai_info(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🤔")])
-    await message.reply("🤖 AI tizimi faol! Istalgan savolingizni matn shaklida yozib yuboring, 'Bizning servis' nomidan javob beraman.")
+    await message.reply("🤖 Haqiqiy AI tizimi faol! Istalgan savolingizni biron bir tugmani bosmasdan, to'g'ridan-to'g'ri matn shaklida yozib yuboring, Gemini AI sizga javob beradi.")
 
 # Adminga yozish tugmasi
 @dp.message(F.text == "Adminga yozish")
@@ -92,14 +94,23 @@ async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
     await message.reply("👨‍💻 Savollar yoki takliflar bo'lsa, adminga yozishingiz mumkin:\n👉 https://t.me/admin_aldilshod")
 
-# Ixtiyoriy matn yozilsa (AI javob beradi)
+# HAQIQIY GEMINI AI: Agar ixtiyoriy boshqa matn yozilsa, Gemini javob beradi
 @dp.message()
 async def handle_ai_response(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👀")])
     user_question = message.text
-    ai_prompt_prefix = "Bizning servis ushbu savolga quyidagicha javob beradi: \n\n"
-    ai_generated_reply = f"Sizning '{user_question}' bo'yicha so'rovingiz qabul qilindi. Biz sizga eng sifatli yordamni taklif etamiz!"
-    await message.reply(f"{ai_prompt_prefix}{ai_generated_reply}")
+    
+    try:
+        # Sun'iy intellektga kontekst beramiz, u o'zini servis yordamchisi deb bilsin
+        prompt = f"Siz 'Bizning servis' nomli texnik xizmat ko'rsatish markazining aqlli yordamchisiz. Quyidagi savolga o'zbek tilida qisqa, aniq va xushmuomala javob bering:\n\nSavol: {user_question}"
+        
+        # Gemini modelidan javob olish
+        response = model.generate_content(prompt)
+        await message.reply(response.text)
+        
+    except Exception as e:
+        logging.error(f"Gemini xatolik: {e}")
+        await message.reply("🤖 AI tizimida vaqtincha uzilish bo'ldi. Sal keyinroq qayta urunib ko'ring.")
 
 async def main():
     await dp.start_polling(bot)
