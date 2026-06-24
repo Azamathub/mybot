@@ -47,7 +47,11 @@ async def process_time(message: types.Message):
 @dp.message(F.text == "📍 Manzilimiz")
 async def process_location(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="🔥")])
-    await message.reply("📍 Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon.")
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo="BU_YERGA_FILE_ID",
+        caption="📍 Bekobod shahar Tohir va Zuhra savdo kompleksi 1-qavatida 112-dokon."
+    )
     await message.reply_location(latitude=40.2140770, longitude=69.2654280)
 
 @dp.message(F.text == "💰 Xizmat narxlari")
@@ -64,6 +68,11 @@ async def process_ai_info(message: types.Message):
 async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
     await message.reply(f"👨‍💻 Adminga yozish:\n👉 https://t.me/{ADMIN_USERNAME}")
+
+@dp.message(F.photo)
+async def get_photo_id(message: types.Message):
+    file_id = message.photo[-1].file_id
+    await message.reply(f"Rasm file_id: `{file_id}`")
 
 @dp.message()
 async def handle_ai_response(message: types.Message):
