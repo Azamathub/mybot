@@ -90,7 +90,7 @@ async def process_ai_info(message: types.Message):
 @dp.message(F.text == "Adminga yozish")
 async def process_admin(message: types.Message):
     await message.react(reaction=[ReactionTypeEmoji(emoji="👨‍💻")])
-    await message.reply("👨‍💻 Savollar yoki takliflar bo'lsa, adminga yozishingiz mumkin:\n👉 https://t.me/admin_aldilshod")
+    await message.reply("👨‍💻 Savollar yoki takliflar bo'lsa, adminga yozishingiz mumkin:\n👉 https://t.me/aldilshod")
 
 # Ixtiyoriy matn yozilsa (AI javob beradi)
 @dp.message()
