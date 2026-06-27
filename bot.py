@@ -28,6 +28,57 @@ async def hello_handler(client, message):
     if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
         await message.reply_text("Assalomu alaykum! Men Azamatxo'janing sun'iy intellekt yordamchisiman. Hozirda u biroz band bo'lishi mumkin. Sizga qanday yordam bera olaman?")
         return
+elif text_lower in ["Assalomu alaykum"]:
+        await message.reply_text("Vaalayum Assalom! yaxshimisiz")
+        return
+
+    elif text_lower in ["qalesiz"]:
+        await message.reply_text("Qichuu😎")
+        return
+
+    elif text_lower in ["Assalomu alaykum"]:
+        await message.reply_text("Vaalayum assalom!")
+        return
+
+    elif text_lower in ["assalomu alaykum"]:
+        await message.reply_text("Vaalaykum assalom!")
+        return
+
+    elif text_lower in ["qanday"]:
+        await message.reply_text("Qichuu😎")
+        return
+
+    elif text_lower in ["Azamat"]:
+        await message.reply_text("Labbay?😊")
+        return
+
+    elif text_lower in ["salomat boling"]:
+        await message.reply_text("Siz ham!🤝")
+        return
+        
+    elif text_lower in ["rahmat", "raxmat"]:
+        await message.reply_text("Arziydi, salomat bo'ling!🤝 👍")
+        return
+
+    elif text_lower in ["nima gap"]:
+        await message.reply_text("Tinch, ozindachi?")
+        return
+
+    elif text_lower in ["chit bormi"]:
+        await message.reply_text("kaneshna, @chit_oyinlarim shu kanalimda bor")
+        return
+
+    elif text_lower in ["yaxshimisiz"]:
+        await message.reply_text("Yashi rahmat🤗")
+        return
+
+    elif "narx" in text_lower or "qancha" in text_lower:
+        await message.reply_text("Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.")
+        return
+
+    elif "prashivka qilasizmi" in text_lower or "qancha" in text_lower:
+        await message.reply_text("Ha albatta, Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.Lekin prashivka qilgandan keyin telefon samalyot boladi ishlashi🔥")
+        return
     elif t in ["rahmat", "raxmat", "rahmat!"]:
         await message.reply_text("Arziydi! Har doim xizmatingizdamiz. 👍")
         return
