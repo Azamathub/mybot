@@ -1,17 +1,8 @@
 import os
-import asyncio
 from pyrogram import Client, filters
-import google.generativeai as genai
 
 # Railway muhitidan sessiyani o'qiydi
 SESSION_STRING = os.getenv("SESSION_STRING")
-
-# Rasmdagi haqiqiy Gemini API kalitingiz to'g'ridan-to'g'ri kod ichiga joylashtirildi
-GEMINI_API_KEY = "AIzaSyCCXqmHS7eRukRyLIH3ftVDorVIMEj-dH4"
-
-# Gemini AI modelini sozlash
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
 
 app = Client(
     "my_userbot",
@@ -28,9 +19,6 @@ async def reply_handler(client, message):
     # Maxsus kalit so'zlar uchun tekshirish
     if text_lower == "salom":
         await message.reply_text("Assalomu alaykum! Men Azamatxo'janing sun'iy intellekt yordamchisiman. Hozirda u biroz band bo'lishi mumkin. Sizga qanday yordam bera olaman?")
-        return
-    elif text_lower in ["rahmat", "raxmat"]:
-        await message.reply_text("Arziydi! Har doim xizmatingizdamiz. 👍")
         return
 
 elif text_lower in ["Assalomu alaykum"]:
@@ -85,15 +73,13 @@ elif text_lower in ["Assalomu alaykum"]:
         await message.reply_text("Ha albatta, Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.Lekin prashivka qilgandan keyin telefon samalyot boladi ishlashi🔥")
         return
 
-    # Kalit so'zlarga tushmasa, Gemini sun'iy intellekti javob beradi
-    try:
-        await client.send_chat_action(message.chat.id, "typing")
-        response = model.generate_content(message.text)
-        await message.reply_text(response.text)
-    except Exception as e:
-        print(f"Gemini Error: {e}")
+    elif text_lower in ["rahmat", "raxmat"]:
+        await message.reply_text("Arziydi! Har doim xizmatingizdamiz. 👍")
+        return
+    else:
+        # Boshqa har qanday xabarga bot tinchgina shu javobni qaytaradi va qulab tushmaydi
         await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
 
 if __name__ == "__main__":
-    print("🤖 Bot muvaffaqiyatli ishga tushdi va Gemini ulangan...")
+    print("🤖 Bot muvaffaqiyatli ishga tushdi...")
     app.run()
