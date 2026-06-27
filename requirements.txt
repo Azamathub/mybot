@@ -1,7 +1,3 @@
-<<<<<<< HEAD
 pyrogram
 tgcrypto
 google-generativeai
-=======
-aiogram==3.11.0
->>>>>>> 36288d249e32501d4d4fbe351ae174bf190f7e51
