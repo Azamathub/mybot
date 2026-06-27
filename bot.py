@@ -23,34 +23,33 @@ async def hello_handler(client, message):
 
     t = message.text.lower().strip()
 
-    # Maxsus javoblar
-    if t in ["assalomu alaykum"]:
+    # Yangi va eski savol-javoblar
+    if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
-
-          elif t == "qalesiz":
+    
+    elif t == "qalesiz":
         await message.reply_text("Qichuu😎")
-        
     elif t == "qanday":
         await message.reply_text("Qichuu😎")
-
-    elif t == "qayttasan", "qayerdasan", "qattasan":
-        await message.reply_text("Dubaida🏖️")
-        
     elif t == "nima gap":
         await message.reply_text("Tinch, o'zingizda nima gaplar?")
-
-    elif t in ["ismiz", "isming nima"]:
-        await message.reply_text("Azamat Abduraimov")
     
+    # Yangi qo'shilganlar:
+    elif t == "qayerdasan":
+        await message.reply_text("Dubaida🏖️")
+        
+    elif t in ["kimsan", "isming nima", "ismiz nima"]:
+        await message.reply_text("Azamat Abduraimov")
+        
+    elif t in ["chit bormi", "mod bormi"]:
+        await message.reply_text("Kaneshna, @chit_oyinlarim shu kanalimda bor.")
+
     elif t == "azamat":
         await message.reply_text("Labbay?😊")
     
     elif t in ["rahmat", "raxmat"]:
         await message.reply_text("Arziydi, salomat bo'ling!🤝 👍")
     
-    elif t == "chit bormi", "mod bormi":
-        await message.reply_text("Kaneshna, @chit_oyinlarim shu kanalimda bor.")
-
     elif "prashivka" in t:
         await message.reply_text("Ha albatta! Prashivka qilgandan keyin telefon samalyot bo'ladi🔥. Narxini Azamatxo'ja aytadilar.")
     
@@ -64,7 +63,7 @@ async def hello_handler(client, message):
         if javob:
             await message.reply_text(javob)
         else:
-            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz! Azamatakam yozadilar🤝")
+            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!Azamatakam yozadilar🤝")
 
 if __name__ == "__main__":
     app.run()
