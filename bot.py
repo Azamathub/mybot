@@ -3,22 +3,22 @@ import asyncio
 from pyrogram import Client, filters
 import google.generativeai as genai
 
+# Railway'dagi Environment Variables (o'zgaruvchilar) bo'limidan ma'lumotlarni o'qiymiz
 SESSION_STRING = os.getenv("SESSION_STRING")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# Agar Gemini API kalitini ham Railway'ga qo'shgan bo'lsangiz, uni ham avtomatik oladi
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 
-# API kalit borligini tekshirish
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    # Eng oxirgi va tezkor modelga o'giramiz
-    model = genai.GenerativeModel("gemini-1.5-flash")
-else:
-    model = None
+# Gemini AI modelini sozlash
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-pro")
 
+# Pyrogram mijozini sessiya kaliti orqali ishga tushiramiz
 app = Client(
     "my_userbot",
     session_string=SESSION_STRING
 )
 
+# 1. Maxsus kalit so'zlar uchun avtomatik javoblar (Kichik harflarda tekshiradi)
 @app.on_message(filters.incoming & filters.private)
 async def reply_keywords(client, message):
     text_lower = message.text.lower() if message.text else ""
@@ -79,26 +79,26 @@ elif text_lower in ["Assalomu alaykum"]:
         await message.reply_text("Ha albatta, Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.Lekin prashivka qilgandan keyin telefon samalyot boladi ishlashi🔥")
         return
         
-    elif text_lower in ["rahmat", "raxmat", "yashi rahmat\ud83e\udd17"]:
+    elif text_lower in ["rahmat", "raxmat"]:
         await message.reply_text("Arziydi! Har doim xizmatingizdamiz. 👍")
         return
 
+    # 2. Agar kelgan xabar oddiy matn bo'lsa va kalit so'zlarga tushmasa, Gemini AI javob beradi
     if message.text:
-        # Agar Railway'da kalit kiritilmagan bo'lsa, srazu shu yerda kod ichiga vaqtinchalik yozib ko'ring:
-        # API_KEY = "AIzaSy..." (muammo hal bo'lmasa, kalitni shundoq qo'shtirnoq ichiga yozib ko'rish mumkin)
-        
-        if model:
-            try:
-                await client.send_chat_action(message.chat.id, "typing")
-                response = model.generate_content(message.text)
-                await message.reply_text(response.text)
-                return
-            except Exception as e:
-                # Terminal (Build Logs) da aniq xatoni ko'rishimiz uchun:
-                print(f"!!! GEMINI ERROR !!!: {e}")
-                
-        await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
+        try:
+            # Kutish vaqtida foydalanuvchiga "yozmoqda..." (typing) holatini ko'rsatish
+            await client.send_chat_action(message.chat.id, "typing")
+            
+            # Gemini AI'dan javob olish
+            response = model.generate_content(message.text)
+            
+            # Sun'iy intellekt javobini yuborish
+            await message.reply_text(response.text)
+        except Exception as e:
+            print(f"Gemini AI xatoligi: {e}")
+            # Agar Gemini ulanmagan bo'lsa, zaxira xabar
+            await message.reply_text("Xabaringiz qabul qilindi. Tez orada sizga aloqaga chiqishadi!")
 
 if __name__ == "__main__":
-    print("🤖 Bot yangi model bilan start berdi...")
+    print("🤖 Userbot muvaffaqiyatli ishga tushdi va xabarlarni kutmoqda...")
     app.run()
