@@ -108,4 +108,4 @@ elif text_lower in ["Assalomu alaykum"]:
 
 if __name__ == "__main__":
     print("🤖 Bot Gemini AI bilan to'liq ishga tushdi...")
-    app.run()
+    app.run() 
