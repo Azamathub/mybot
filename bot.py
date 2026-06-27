@@ -5,7 +5,7 @@ from pyrogram import Client, filters
 # Railway muhitidan sessiyani o'qiydi
 SESSION_STRING = os.getenv("SESSION_STRING")
 
-# Rasmdan olingan aniq Gemini API kalitingiz
+# Rasmdan olingan haqiqiy Gemini API kalitingiz
 GEMINI_API_KEY = "AIzaSyCCXqmHS7eRukRyLIH3ftVDorVIMEj-dH4"
 
 app = Client(
@@ -14,7 +14,7 @@ app = Client(
 )
 
 def ask_gemini(prompt_text):
-    """Google API kutubxonasiz, to'g'ridan-to'g'ri so'rov yuborish funksiyasi"""
+    """Google kutubxonasiz, to'g'ridan-to'g'ri API so'rov yuborish funksiyasi"""
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
     payload = {
@@ -23,12 +23,12 @@ def ask_gemini(prompt_text):
         }]
     }
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
         if response.status_code == 200:
             data = response.json()
             return data['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
-        print(f"Gemini API ulana olmadi: {e}")
+        print(f"Gemini API xatoligi: {e}")
     return None
 
 @app.on_message(filters.incoming & filters.private)
@@ -45,7 +45,6 @@ async def reply_handler(client, message):
     elif text_lower in ["rahmat", "raxmat"]:
         await message.reply_text("Arziydi! Har doim xizmatingizdamiz. 👍")
         return
-
 elif text_lower in ["Assalomu alaykum"]:
         await message.reply_text("Vaalayum Assalom! yaxshimisiz")
         return
@@ -98,16 +97,15 @@ elif text_lower in ["Assalomu alaykum"]:
         await message.reply_text("Ha albatta, Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.Lekin prashivka qilgandan keyin telefon samalyot boladi ishlashi🔥")
         return
 
-    # 2. Gemini AI javob berish funksiyasi
+    # 2. Agar kalit so'zlarga tushmasa, Gemini ishga tushadi
     await client.send_chat_action(message.chat.id, "typing")
     ai_response = ask_gemini(message.text)
 
     if ai_response:
         await message.reply_text(ai_response)
     else:
-        # Tarmoqda uzilish bo'lsa, zaxira xabar (bot o'chib qolmaydi)
         await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
 
 if __name__ == "__main__":
-    print("🤖 Bot Gemini AI funksiyasi bilan ishga tushdi...")
+    print("🤖 Bot Gemini AI bilan to'liq ishga tushdi...")
     app.run()
