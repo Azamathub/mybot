@@ -12,59 +12,48 @@ def ask_gemini(text_input):
     try:
         r = requests.post(url, json={"contents": [{"parts": [{"text": text_input}]}]}, headers={"Content-Type": "application/json"}, timeout=15)
         return r.json()['candidates'][0]['content']['parts'][0]['text']
-    except Exception as e:
-        print(f"Gemini xatosi: {e}")
+    except:
         return None
 
-@app.on_message(filters.incoming & filters.private)
+@app.on_message(filters.private & ~filters.me) 
 async def hello_handler(client, message):
     if not message.text:
-        await message.reply_text("Assalomu alaykum! Men Azamatxo'janing sun'iy intellekt yordamchisiman. Hozirda u biroz band bo'lishi mumkin. Sizga qanday yordam bera olaman?")
+        await message.reply_text("Assalomu alaykum! Men Azamatxo'janing yordamchisiman. Sizga qanday yordam bera olaman?")
         return
 
     t = message.text.lower().strip()
 
-    # MAXSUS JAVOBLAR (Har biridan keyin 'return' qo'ydim!)
-    if "assalomu alaykum" in t:
+    # 1. Aniq so'zlar bo'yicha tekshirish (faqat shu so'zlar bo'lsa ishlaydi)
+    if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
-        return # <-- Mana shu 'return' juda muhim!
-
-    elif any(word in t for word in ["qalesiz", "qanday", "nima gap"]):
+    
+    elif t in ["qalesiz", "qanday", "nima gap"]:
         await message.reply_text("Qichuu😎 Tinch, o'zingizda nima gaplar?")
-        return
-
-    elif "azamat" in t:
+    
+    elif t == "azamat":
         await message.reply_text("Labbay?😊")
-        return
-
-    elif any(word in t for word in ["salomat boling", "rahmat", "raxmat"]):
+    
+    elif t in ["rahmat", "raxmat"]:
         await message.reply_text("Arziydi, salomat bo'ling!🤝 👍")
-        return
-
-    elif "chit bormi" in t:
+    
+    elif t == "chit bormi":
         await message.reply_text("Kaneshna, @chit_oyinlarim shu kanalimda bor.")
-        return
 
-    elif "yaxshimisiz" in t:
-        await message.reply_text("Yaxshi, rahmat!🤗")
-        return
-
+    # 2. Tarkibida shu so'zlar bo'lsa (yaxshiroq ishlashi uchun elif tartibini o'zgartirdik)
+    elif "prashivka" in t:
+        await message.reply_text("Ha albatta! Prashivka qilgandan keyin telefon samalyot bo'ladi🔥. Narxini Azamatxo'ja aytadilar.")
+    
     elif "narx" in t or "qancha" in t:
         await message.reply_text("Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.")
-        return
 
-    elif "prashivka" in t:
-        await message.reply_text("Ha albatta! Prashivka qilgandan keyin telefon samalyot bo'ladi, ishlashi vapshe bomba bo'ladi🔥. Narxini Azamatxo'ja aytadilar.")
-        return
-
-    # AGAR YUQORIDAGILARNING HECH QAYSISI BO'LMASA:
-    await client.send_chat_action(message.chat.id, "typing")
-    javob = ask_gemini(message.text)
-    
-    if javob:
-        await message.reply_text(javob)
+    # 3. Agar hech biri bo'lmasa, Gemini'ga yubor
     else:
-        await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
+        await client.send_chat_action(message.chat.id, "typing")
+        javob = ask_gemini(message.text)
+        if javob:
+            await message.reply_text(javob)
+        else:
+            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
 
 if __name__ == "__main__":
     app.run()
