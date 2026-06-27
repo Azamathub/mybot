@@ -27,10 +27,7 @@ async def hello_handler(client, message):
     if t in ["assalomu alaykum"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
 
-        elif t == "salom":
-        await message.reply_text("Alik, Men Azamatxo'janing yordamchisiman. Sizga qanday yordam bera olaman?")
-
-    elif t == "qalesiz":
+          elif t == "qalesiz":
         await message.reply_text("Qichuu😎")
         
     elif t == "qanday":
