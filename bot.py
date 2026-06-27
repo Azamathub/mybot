@@ -53,12 +53,12 @@ elif text_lower in ["Assalomu alaykum"]:
         await message.reply_text("Qichuu😎")
         return
 
-    elif text_lower in ["Assalomu alaykum"]:
-        await message.reply_text("Vaalayum assalom!")
-        return
-
     elif text_lower in ["assalomu alaykum"]:
         await message.reply_text("Vaalaykum assalom!")
+        return
+
+    elif text_lower in ["Assalomu alaykum"]:
+        await message.reply_text("Vaalayum assalom!")
         return
 
     elif text_lower in ["qanday"]:
