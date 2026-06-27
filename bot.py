@@ -3,18 +3,15 @@ import asyncio
 from pyrogram import Client, filters
 import google.generativeai as genai
 
-# Railway o'zgaruvchisidan oladi
+# Railway muhitidan sessiyani o'qiydi
 SESSION_STRING = os.getenv("SESSION_STRING")
 
-# AGAR RAILWAY VARIABLES ISHLAMASA, API KALITNI SHU YERGA QO'SHTIRNOQ ICHIGA YOZING:
-GEMINI_API_KEY = "SESHU_YERGA_GEMINI_KALITINI_QO_YING"
+# Rasmdagi haqiqiy Gemini API kalitingiz to'g'ridan-to'g'ri kod ichiga joylashtirildi
+GEMINI_API_KEY = "AIzaSyCCXqmHS7eRukRyLIH3ftVDorVIMEj-dH4"
 
 # Gemini AI modelini sozlash
-if GEMINI_API_KEY and GEMINI_API_KEY != "SESHU_YERGA_GEMINI_KALITINI_QO_YING":
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-else:
-    model = None
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 app = Client(
     "my_userbot",
@@ -28,7 +25,7 @@ async def reply_handler(client, message):
 
     text_lower = message.text.lower()
 
-    # Oddiy kalit so'zlarni tekshirish
+    # Maxsus kalit so'zlar uchun tekshirish
     if text_lower == "salom":
         await message.reply_text("Assalomu alaykum! Men Azamatxo'janing sun'iy intellekt yordamchisiman. Hozirda u biroz band bo'lishi mumkin. Sizga qanday yordam bera olaman?")
         return
@@ -88,18 +85,15 @@ elif text_lower in ["Assalomu alaykum"]:
         await message.reply_text("Ha albatta, Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.Lekin prashivka qilgandan keyin telefon samalyot boladi ishlashi🔥")
         return
 
-    # Agar kalit so'z bo'lmasa va Gemini sozlangan bo'lsa
-    if model:
-        try:
-            await client.send_chat_action(message.chat.id, "typing")
-            response = model.generate_content(message.text)
-            await message.reply_text(response.text)
-        except Exception as e:
-            print(f"Gemini Error: {e}")
-            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
-    else:
+    # Kalit so'zlarga tushmasa, Gemini sun'iy intellekti javob beradi
+    try:
+        await client.send_chat_action(message.chat.id, "typing")
+        response = model.generate_content(message.text)
+        await message.reply_text(response.text)
+    except Exception as e:
+        print(f"Gemini Error: {e}")
         await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
 
 if __name__ == "__main__":
-    print("🤖 Bot qayta start oldi...")
+    print("🤖 Bot muvaffaqiyatli ishga tushdi va Gemini ulangan...")
     app.run()
