@@ -23,12 +23,27 @@ async def hello_handler(client, message):
 
     t = message.text.lower().strip()
 
-    # 1. Aniq so'zlar bo'yicha tekshirish (faqat shu so'zlar bo'lsa ishlaydi)
-    if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
+    # Maxsus javoblar
+    if t in ["assalomu alaykum"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
-    
-    elif t in ["qalesiz", "qanday", "nima gap"]:
-        await message.reply_text("Qichuu😎 Tinch, o'zingizda nima gaplar?")
+
+        elif t == "salom":
+        await message.reply_text("Alik, Men Azamatxo'janing yordamchisiman. Sizga qanday yordam bera olaman?")
+
+    elif t == "qalesiz":
+        await message.reply_text("Qichuu😎")
+        
+    elif t == "qanday":
+        await message.reply_text("Qichuu😎")
+
+    elif t == "qayttasan", "qayerdasan", "qattasan":
+        await message.reply_text("Dubaida🏖️")
+        
+    elif t == "nima gap":
+        await message.reply_text("Tinch, o'zingizda nima gaplar?")
+
+    elif t in ["ismiz", "isming nima"]:
+        await message.reply_text("Azamat Abduraimov")
     
     elif t == "azamat":
         await message.reply_text("Labbay?😊")
@@ -36,24 +51,23 @@ async def hello_handler(client, message):
     elif t in ["rahmat", "raxmat"]:
         await message.reply_text("Arziydi, salomat bo'ling!🤝 👍")
     
-    elif t == "chit bormi":
+    elif t == "chit bormi", "mod bormi":
         await message.reply_text("Kaneshna, @chit_oyinlarim shu kanalimda bor.")
 
-    # 2. Tarkibida shu so'zlar bo'lsa (yaxshiroq ishlashi uchun elif tartibini o'zgartirdik)
     elif "prashivka" in t:
         await message.reply_text("Ha albatta! Prashivka qilgandan keyin telefon samalyot bo'ladi🔥. Narxini Azamatxo'ja aytadilar.")
     
     elif "narx" in t or "qancha" in t:
         await message.reply_text("Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.")
 
-    # 3. Agar hech biri bo'lmasa, Gemini'ga yubor
+    # Gemini qismi
     else:
         await client.send_chat_action(message.chat.id, "typing")
         javob = ask_gemini(message.text)
         if javob:
             await message.reply_text(javob)
         else:
-            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!")
+            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz! Azamatakam yozadilar🤝")
 
 if __name__ == "__main__":
     app.run()
