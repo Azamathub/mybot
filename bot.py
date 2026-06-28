@@ -1,23 +1,9 @@
 import os
-import requests
 from pyrogram import Client, filters
 
 SESSION_STRING = os.getenv("SESSION_STRING")
-GEMINI_API_KEY = "AIzaSyCCXqmHS7eRukRyLIH3ftVDorVIMEj-dH4"
 
 app = Client("my_userbot", session_string=SESSION_STRING)
-
-def ask_gemini(text_input):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-    try:
-        r = requests.post(url, json={"contents": [{"parts": [{"text": text_input}]}]}, headers={"Content-Type": "application/json"}, timeout=5)
-        # Agar so'rov muvaffaqiyatli bo'lsa va javob kelsa
-        if r.status_code == 200:
-            return r.json()['candidates'][0]['content']['parts'][0]['text']
-    except:
-        pass
-    # Agar internet o'chsa, API xato bersa yoki kutubxona muammo qilsa, zaxira matn qaytadi:
-    return "Xabaringiz qabul qilindi, Azamatxo'ja hozir band edi😊, tez orada javob beramiz! Azamatakam yozadilar🤝"
 
 @app.on_message(filters.private & ~filters.me) 
 async def hello_handler(client, message):
@@ -27,7 +13,7 @@ async def hello_handler(client, message):
 
     t = message.text.lower().strip()
 
-    # Maxsus savol-javoblar (Bular rasmda juda chiroyli va aniq ishlayapti)
+    # 1. Maxsus aniq savol-javoblar
     if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
     elif t == "qalesiz":
@@ -51,16 +37,9 @@ async def hello_handler(client, message):
     elif "narx" in t or "qancha" in t:
         await message.reply_text("Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.")
 
-    # Agar ro'yxatda yo'q boshqa har qanday savol yozilsa (Masalan: Nechta, Nega)
+    # 2. Agar yuqoridagilardan mutlaqo boshqa begona gap yozilsa, srazi shu javob chiqadi:
     else:
-        await client.send_chat_action(message.chat.id, "typing")
-        javob = ask_gemini(message.text)
-        
-        # Agar javob kelgan bo'lsa uni chiqaradi, bo'lmasa baribir o'sha matn chiqadi
-        if javob:
-            await message.reply_text(javob)
-        else:
-            await message.reply_text("Xabaringiz qabul qilindi, Azamatxo'ja hozir band edi😊, tez orada javob beramiz! Azamatakam yozadilar🤝")
+        await message.reply_text("Xabaringiz qabul qilindi, Azamatxo'ja hozir band edi😊, tez orada javob beramiz! Azamatakam yozadilar🤝")
 
 if __name__ == "__main__":
     app.run()
