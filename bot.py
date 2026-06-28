@@ -63,7 +63,7 @@ async def hello_handler(client, message):
         if javob:
             await message.reply_text(javob)
         else:
-            await message.reply_text("Xabaringiz qabul qilindi, tez orada javob beramiz!Azamatakam yozadilar🤝")
+            await message.reply_text("Xabaringiz qabul qilindi,Azamatxo'ja hozir band edi😊, tez orada javob beramiz!Azamatakam yozadilar🤝")
 
 if __name__ == "__main__":
     app.run()
