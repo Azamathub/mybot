@@ -5,7 +5,8 @@ SESSION_STRING = os.getenv("SESSION_STRING")
 
 app = Client("my_userbot", session_string=SESSION_STRING)
 
-@app.on_message(filters.private & ~filters.me) 
+# filters.private & ~filters.me & ~filters.bot -> Faqat shaxsiy xabarlarga javob beradi, o'zingizga va boshqa BOTLARGA javob bermaydi!
+@app.on_message(filters.private & ~filters.me & ~filters.bot) 
 async def hello_handler(client, message):
     if not message.text:
         await message.reply_text("Assalomu alaykum! Men Azamatxo'janing yordamchisiman. Sizga qanday yordam bera olaman?")
@@ -14,7 +15,7 @@ async def hello_handler(client, message):
     t = message.text.lower().strip()
 
     # 1. Maxsus aniq savol-javoblar
-    if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
+    if t in ["assalomu alaykum", "salom!", "assalomu alaykum!"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
     elif t == "qalesiz":
         await message.reply_text("Qichuu😎")
