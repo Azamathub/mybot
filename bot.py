@@ -32,6 +32,8 @@ async def hello_handler(client, message):
         await message.reply_text("Dubaida🏖️")
     elif t in ["kimsan", "isming nima", "ismiz nima"]:
         await message.reply_text("Azamat Abduraimov")
+    elif t in ["yaxshimisiz", "yahshimisiz"]:
+        await message.reply_text("Yaxshi rahmat!❤️🙌")
     elif t in ["chit bormi", "mod bormi"]:
         await message.reply_text("Kaneshna, @chit_oyinlarim shu kanalimda bor.")
     elif t == "azamat":
