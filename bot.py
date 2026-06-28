@@ -23,7 +23,7 @@ async def hello_handler(client, message):
 
     t = message.text.lower().strip()
 
-    # Yangi va eski savol-javoblar
+    # Maxsus savol-javoblar
     if t in ["salom", "assalomu alaykum", "salom!", "assalomu alaykum!"]:
         await message.reply_text("Vaalaykum assalom! Yaxshimisiz? Qanday yordam bera olaman?")
     
@@ -34,7 +34,6 @@ async def hello_handler(client, message):
     elif t == "nima gap":
         await message.reply_text("Tinch, o'zingizda nima gaplar?")
     
-    # Yangi qo'shilganlar:
     elif t == "qayerdasan":
         await message.reply_text("Dubaida🏖️")
         
@@ -56,14 +55,17 @@ async def hello_handler(client, message):
     elif "narx" in t or "qancha" in t:
         await message.reply_text("Xizmatlar va mahsulotlar narxi haqida hozir Azamatxo'janing o'zlari aloqaga chiqib batafsil ma'lumot beradilar.")
 
-    # Gemini qismi
+    # Agar yuqoridagilarga tushmasa, shu yer ishlaydi:
     else:
         await client.send_chat_action(message.chat.id, "typing")
         javob = ask_gemini(message.text)
-        if javob:
+        
+        # Agar Gemini muvaffaqiyatli javob qaytarsa va u bo'sh bo'lmasa:
+        if javob and javob.strip():
             await message.reply_text(javob)
+        # Agar Gemini ishlamay qolsa yoki xato bersa, siz xohlagan matn chiqadi:
         else:
-            await message.reply_text("Xabaringiz qabul qilindi,Azamatxo'ja hozir band edi😊, tez orada javob beramiz!Azamatakam yozadilar🤝")
+            await message.reply_text("Xabaringiz qabul qilindi, Azamatxo'ja hozir band edi😊, tez orada javob beramiz! Azamatakam yozadilar🤝")
 
 if __name__ == "__main__":
     app.run()
